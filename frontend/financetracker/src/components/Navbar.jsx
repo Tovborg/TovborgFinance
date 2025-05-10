@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import LogoIcon from './LogoIcon'
 import { useGoogleLogin, googleLogout } from '@react-oauth/google'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const navigation = [
   { name: 'Overblik', href: '#', current: true },
@@ -19,6 +20,7 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
+  const navigate = useNavigate()
   const { user, login, logout } = useAuth() // Grab user and save function
   const [accessToken, setAccessToken] = useState(null);
 
@@ -45,6 +47,7 @@ export default function Navbar() {
           };
           login(userData);
           console.log('User data:', userData);
+          navigate('/dashboard');
         })
         .catch((err) => console.log(err));
     }
@@ -69,7 +72,7 @@ export default function Navbar() {
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
-              <LogoIcon className="h-12 w-auto text-indigo-600" />
+              <LogoIcon className="h-8 w-auto text-indigo-600" />
             </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">

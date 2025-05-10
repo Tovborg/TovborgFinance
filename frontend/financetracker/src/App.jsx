@@ -14,8 +14,6 @@ import axios from 'axios'
 export default function App() {
   const { user, login, logout } = useAuth();  // Grab user and save function
 
-
-
   return (
     <div className="">
       <Navbar />

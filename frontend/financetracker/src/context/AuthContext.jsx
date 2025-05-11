@@ -5,7 +5,8 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [jwt, setJwt] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [jwt, setJwt] = useState(() => localStorage.getItem("jwt"));
 
     useEffect(() => {
         if (jwt && !user) {
@@ -16,7 +17,10 @@ export const AuthProvider = ({ children }) => {
                     },
                 })
                 .then((res) => setUser(res.data))
-                .catch(() => logout()); // Logout if token is invalid
+                .catch(() => logout()) // Logout if token is invalid
+                .finally(() => setIsLoading(false));
+        } else {
+            setIsLoading(false); // Set loading to false if no token or user is present
         }
     }, [jwt]);
 
@@ -31,6 +35,7 @@ export const AuthProvider = ({ children }) => {
             // Save JWT token to state
             const token = jwtRes.data.access_token;
             setJwt(token);
+            localStorage.setItem("jwt", token); // Save token to local storage
             // Use token to get user data
             const meRes = await axios.get("http://127.0.0.1:8000/auth/me", {
                 headers: {
@@ -51,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, jwt, login, logout }}>
+        <AuthContext.Provider value={{ user, jwt, login, logout, isLoading }}>
           {children}
         </AuthContext.Provider>
       );

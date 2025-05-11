@@ -1,10 +1,11 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from .database import Base
 
-class Account(Base):
-    __tablename__ = 'accounts'
+class User(Base):
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    iban = Column(String, unique=True, nullable=False)
-    currency = Column(String, nullable=False, default='DKK')
+    email = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String)
+    picture = Column(String)
+    google_id = Column(String, unique=True)  # sub from Google

@@ -3,3 +3,5 @@
 backend/.env
 backend/.venv
 backend/alembic.ini
+alembic.ini
+.env

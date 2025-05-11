@@ -7,6 +7,7 @@ from jose import jwt
 import os
 from dotenv import load_dotenv
 from sqlalchemy.future import select
+from app.dependencies import get_current_user
 load_dotenv()
 
 router = APIRouter()
@@ -44,4 +45,12 @@ async def google_login(
     jwt_token = jwt.encode({"user_id": user.id}, JWT_SECRET, algorithm="HS256")
     return {"access_token": jwt_token}
 
+@router.get("/auth/me")
+async def get_me(current_user: User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "name": current_user.name,
+        "picture": current_user.picture
+    }
 

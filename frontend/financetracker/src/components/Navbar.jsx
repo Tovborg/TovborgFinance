@@ -153,7 +153,7 @@ export default function Navbar() {
           ) : (
             <button
               aria-label="Sign in with Google"
-              class="flex items-center bg-white border border-button-border-light rounded-md p-0.5 pr-3"
+              className="flex items-center bg-white border border-button-border-light rounded-md p-0.5 pr-3"
               onClick={() => googleLogin()}
             >
               <div class="flex items-center justify-center bg-white w-9 h-9 rounded-l">

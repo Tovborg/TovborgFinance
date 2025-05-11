@@ -5,6 +5,7 @@ import { FaWallet, FaArrowDown, FaChartLine, FaPiggyBank } from "react-icons/fa"
 import RevenueChart from "../components/RevenueChart"
 import SavingsGoalCard from "../components/SavingsGoalCard"
 import BankAccounts from "../components/BankAccounts"
+import Transactions from "../components/Transactions"
 
 export default function Dashboard() {
     const { user } = useAuth()
@@ -98,6 +99,10 @@ export default function Dashboard() {
                 {/* Bank Accounts Section */}
                 <section className="mt-6">
                     <BankAccounts />
+                </section>
+                {/* Transactions Section */}
+                <section className="mt-6">
+                    <Transactions />
                 </section>
             </main>
         </div>

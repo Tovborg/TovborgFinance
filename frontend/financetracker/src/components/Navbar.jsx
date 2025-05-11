@@ -29,27 +29,12 @@ export default function Navbar() {
     onError: (error) => console.log('Login Failed:', error),
   });
 
+  
   useEffect(() => {
     if (accessToken) {
-      axios
-        .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            Accept: 'application/json',
-          },
-        })
-        .then((res) => {
-          const userData = {
-            name: res.data.name,
-            email: res.data.email,
-            picture: res.data.picture,
-            accessToken,
-          };
-          login(userData);
-          console.log('User data:', userData);
-          navigate('/dashboard');
-        })
-        .catch((err) => console.log(err));
+      login(accessToken).then(() => {
+        navigate("/dashboard");
+      });
     }
   }, [accessToken]);
 

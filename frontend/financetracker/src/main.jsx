@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import './index.css'
 import App from './App.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import AccountsPage from './pages/AccountsPage.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
@@ -16,6 +17,7 @@ createRoot(document.getElementById('root')).render(
           <Routes>
             <Route path='/' element={<App />} />
             <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/accounts-page' element={<AccountsPage />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

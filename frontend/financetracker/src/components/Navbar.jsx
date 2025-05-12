@@ -8,8 +8,8 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 const navigation = [
-  { name: 'Overblik', href: '#', current: true },
-  { name: 'Konti', href: '#', current: false },
+  { name: 'Overblik', href: '/dashboard', current: true },
+  { name: 'Konti', href: '/accounts-page', current: false },
   { name: 'Transaktioner', href: '#', current: false },
   { name: 'Budget', href: '#', current: false },
   { name: 'Mål', href: '#', current: false },

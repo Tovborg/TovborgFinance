@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar"
+import Transactions from "../components/Transactions";
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { useAuth } from "../context/AuthContext";
 
@@ -23,6 +24,7 @@ export default function AccountPage() {
         <div className="min-h-screen bg-gray-900 text-white">
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 py-8">
+                {/* Top Section Grid */}
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-[0.4fr_0.6fr]">
                     {/* Welcome card */}
                     <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between shadow-md">
@@ -70,6 +72,38 @@ export default function AccountPage() {
                             </ResponsiveContainer>
                         </div>
                     </div>
+                </div>
+                {/* Middle Section Grid */}
+                {/* Money In / Out Summary */}
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2 mt-6">
+                    {/* Money out */}
+                    <div className="bg-gray-800 rounded-xl p-6 shadow-md">
+                        <p className="text-md font-medium text-gray-400 mb-2 mt-10 uppercase">Money out last 30 days</p>
+                        <h3 className="text-3xl mt-5 font-bold text-white">$0.00</h3>
+                        <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
+                        <div className="h-1 bg-gray-700 mt-4 rounded" />
+                        <div className="flex justify-end mt-4 mb-5">
+                            <a href="#" className="text-sm text-indigo-500 hover:underline flex items-center gap-1">
+                                View all <span className="text-lg">→</span>
+                            </a>
+                        </div>
+                    </div>
+                    {/* Money in */}
+                    <div className="bg-gray-800 rounded-xl p-6 shadow-md">
+                        <p className="text-md font-medium text-gray-400 mb-2 mt-10 uppercase">Money In last 30 days</p>
+                        <h3 className="text-3xl mt-5 font-bold text-white">$0.00</h3>
+                        <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
+                        <div className="h-1 bg-gray-700 mt-4 rounded" />
+                        <div className="flex justify-end mt-4 mb-5">
+                            <a href="#" className="text-sm text-indigo-500 hover:underline flex items-center gap-1">
+                                View all <span className="text-lg">→</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {/* Transactions Section */}
+                <div className="mt-8">
+                    <Transactions />
                 </div>
             </main>
         </div>

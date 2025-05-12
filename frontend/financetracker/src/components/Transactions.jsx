@@ -5,6 +5,7 @@ const transactions = [
         price: "$899",
         due: "30 Mar 2025",
         status: "Pending",
+        account: "xxx4565494",
         icon: "https://img.icons8.com/ios-filled/50/ffffff/mac-os.png"
     },
     {
@@ -13,6 +14,7 @@ const transactions = [
         price: "$99",
         due: "27 Mar 2025",
         status: "Completed",
+        account: "xxx4565494",
         icon: "https://img.icons8.com/ios-filled/50/ffffff/discord-logo.png"
     },
     {
@@ -21,6 +23,7 @@ const transactions = [
         price: "$199",
         due: "10 Mar 2025",
         status: "Completed",
+        account: "xxx4565494",
         icon: "https://img.icons8.com/ios-filled/50/ffffff/figma.png"
     },
     {
@@ -29,6 +32,7 @@ const transactions = [
         price: "$29",
         due: "05 Mar 2025",
         status: "Failed",
+        account: "xxx4565494",
         icon: "https://img.icons8.com/ios-filled/50/ffffff/spotify--v1.png"
     },
     {
@@ -37,6 +41,7 @@ const transactions = [
         price: "$1899",
         due: "01 Feb 2025",
         status: "Completed",
+        account: "xxx4565494",
         icon: "https://img.icons8.com/ios-filled/50/ffffff/mac-os.png"
     }
 ];
@@ -62,6 +67,7 @@ export default function Transactions() {
                         <th className="px-2">Product</th>
                         <th className="px-2">Price</th>
                         <th className="px-2">Due Date</th>
+                        <th className="px-2">Account</th>
                         <th className="px-2">Status</th>
                     </tr>
                 </thead>
@@ -77,6 +83,7 @@ export default function Transactions() {
                             </td>
                             <td className="text-sm text-white px-2 py-1 sm:table-cell">{tx.price}</td>
                             <td className="text-sm text-gray-300 px-2 py-1 hidden sm:table-cell">{tx.due}</td>
+                            <td className="text-sm text-gray-300 px-2 py-1 hidden sm:table-cell">{tx.account}</td>
                             <td className="px-2 py-1 hidden sm:table-cell">
                                 <span className={`text-xs text-white px-2 py-1 rounded ${statusColors[tx.status]}`}>
                                     {tx.status}

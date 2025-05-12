@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import AccountsPage from './pages/AccountsPage.jsx'
+import AccountPage from './pages/AccountPage.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')).render(
             <Route path='/' element={<App />} />
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/accounts-page' element={<AccountsPage />} />
+            <Route path='/account' element={<AccountPage />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

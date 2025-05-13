@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 const navigation = [
   { name: 'Overblik', href: '/dashboard', current: true },
   { name: 'Konti', href: '/accounts-page', current: false },
-  { name: 'Transaktioner', href: '#', current: false },
+  { name: 'Transaktioner', href: '/transactions', current: false },
   { name: 'Budget', href: '#', current: false },
   { name: 'Mål', href: '#', current: false },
 ]

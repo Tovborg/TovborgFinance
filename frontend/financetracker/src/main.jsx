@@ -1,15 +1,16 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { GoogleOAuthProvider } from '@react-oauth/google'
-import './index.css'
-import App from './App.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import AccountsPage from './pages/AccountsPage.jsx'
-import AccountPage from './pages/AccountPage.jsx'
-import TransactionsPage from './pages/Transactions.jsx'
-import NordigenBankUI from './pages/NordigenBankUI.jsx'
-import { AuthProvider } from './context/AuthContext.jsx'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import './index.css';
+import App from './App.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import AccountsPage from './pages/AccountsPage.jsx';
+import AccountPage from './pages/AccountPage.jsx';
+import TransactionsPage from './pages/Transactions.jsx';
+import NordigenBankUI from './pages/NordigenBankUI.jsx';
+import BankRedirect from './pages/BankRedirect.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 
 createRoot(document.getElementById('root')).render(
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')).render(
             <Route path='/account' element={<AccountPage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
             <Route path='/select-bank' element={<NordigenBankUI />} />
+            <Route path='/bank-connect/:institutionId' element={<BankRedirect />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

@@ -1,6 +1,15 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Navigate } from "react-router-dom";
 
 export default function SelectBank() {
+    const { user, isLoading } = useAuth()
+    if (isLoading) {
+        return <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">Loading...</div>
+    }
+    if (!user) {
+        return <Navigate to="/" />
+    }
     const [banks, setBanks] = useState([]);
 
     // Get list of banks from our backend

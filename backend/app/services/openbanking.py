@@ -159,11 +159,11 @@ class OpenBankingService:
         
     
 
-## Example usage
+# Example usage
 # async def main():
 #     service = OpenBankingService()
 #     await service.authenticate()
-#     account_data = await service.get_account_transactions(account_id="")
+#     account_data = await service.create_requisition(institution_id="LAN_AND_SPAR_BANK_AS_LOSADKKK", redirect_url="http://localhost:5173/dashboard")
 #     print(account_data)
 
 # if __name__ == "__main__":

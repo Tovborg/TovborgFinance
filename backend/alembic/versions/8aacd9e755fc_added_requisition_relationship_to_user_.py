@@ -1,8 +1,8 @@
-"""add Account model
+"""added requisition relationship to user to fix bug
 
-Revision ID: 413432ef915e
-Revises: d201ec00c6d4
-Create Date: 2025-05-11 13:32:33.638606
+Revision ID: 8aacd9e755fc
+Revises: 8c99debc70cf
+Create Date: 2025-05-14 17:12:11.802301
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '413432ef915e'
-down_revision: Union[str, None] = 'd201ec00c6d4'
+revision: str = '8aacd9e755fc'
+down_revision: Union[str, None] = '8c99debc70cf'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

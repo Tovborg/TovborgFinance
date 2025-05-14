@@ -35,6 +35,16 @@ export default function SelectBank() {
         const loadSelector = () => {
             if (window.institutionSelector) {
                 window.institutionSelector(banks, 'institution-content-wrapper', config);
+                setTimeout(() => {
+                    const institutionList = Array.from(document.querySelectorAll('.ob-list-institution > a'));
+                    institutionList.forEach((institution) => {
+                        institution.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const institutionId = institution.getAttribute('data-institution');
+                            window.location.href = `/bank-connect/${institutionId}`;
+                        });
+                    });
+                }, 200);
             } else {
                 setTimeout(loadSelector, 100);
             }

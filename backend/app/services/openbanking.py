@@ -6,14 +6,16 @@ import uuid
 load_dotenv()
 
 class OpenBankingService:
-    def __init__(self):
+    def __init__(self, secret_id=None, secret_name=None, secret_key=None):
         self.base_url = "https://bankaccountdata.gocardless.com/api/v2"
-        self.secret_id = os.getenv("GOCARDLESS_SECRET_ID")
-        self.secret_name = os.getenv("GOCARDLESS_SECRET_NAME")
-        self.secret_key = os.getenv("GOCARDLESS_SECRET_KEY")
+        self.secret_id = secret_id
+        self.secret_name = secret_name
+        self.secret_key = secret_key
         self.token = None
     
     async def authenticate(self):
+        if not self.secret_id or not self.secret_key or not self.secret_name:
+            raise ValueError("Secret ID, Secret Name and Secret Key must be set.")
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{self.base_url}/token/new/",

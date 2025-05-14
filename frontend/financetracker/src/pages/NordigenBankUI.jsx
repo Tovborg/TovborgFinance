@@ -1,28 +1,28 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 export default function SelectBank() {
+    const [banks, setBanks] = useState([]);
+
+    // Get list of banks from our backend
     useEffect(() => {
+        const fetchBanks = async () => {
+            try {
+                const response = await fetch("http://127.0.0.1:8000/get_banks");
+                const data = await response.json();
+                setBanks(data.banks);
+            } catch (error) {
+                console.error("Error fetching banks:", error);
+            }
+        };
+        fetchBanks();
+    }, []);
+    useEffect(() => {
+        if (banks.length === 0) return;
         // Dynamisk load CSS
         const link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = "https://unpkg.com/nordigen-bank-ui@1.5.2/package/src/selector.min.css";
         document.head.appendChild(link);
-
-        // Bankliste (normalt fra din backend)
-        const exampleList = [
-            {
-                id: "ABNAMRO_ABNAGB2LXXX",
-                name: "ABN AMRO Bank Commercial",
-                logo: "https://cdn-logos.gocardless.com/ais/ABNAMRO_FTSBDEFAXXX.png",
-                countries: ["GB"],
-            },
-            {
-                id: "BBVAUK_BBVAGB2L",
-                name: "BBVA",
-                logo: "https://cdn-logos.gocardless.com/ais/BBVABE_BBVABEBB.png",
-                countries: ["GB"],
-            },
-        ];
 
         const config = {
             redirectUrl: 'http://localhost:5173/dashboard',
@@ -34,7 +34,7 @@ export default function SelectBank() {
         // Load JS + kør selector
         const loadSelector = () => {
             if (window.institutionSelector) {
-                window.institutionSelector(exampleList, 'institution-content-wrapper', config);
+                window.institutionSelector(banks, 'institution-content-wrapper', config);
             } else {
                 setTimeout(loadSelector, 100);
             }
@@ -50,7 +50,7 @@ export default function SelectBank() {
             document.head.removeChild(link);
             document.body.removeChild(script);
         }
-    }, []);
+    }, [banks]);
 
     return <div id="institution-content-wrapper"></div>;
 }

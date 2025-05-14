@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import AccountsPage from './pages/AccountsPage.jsx'
 import AccountPage from './pages/AccountPage.jsx'
 import TransactionsPage from './pages/Transactions.jsx'
+import NordigenBankUI from './pages/NordigenBankUI.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')).render(
             <Route path='/accounts-page' element={<AccountsPage />} />
             <Route path='/account' element={<AccountPage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
+            <Route path='/select-bank' element={<NordigenBankUI />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

@@ -1,0 +1,75 @@
+<!-- public/bank-select.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Vælg bank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/nordigen-bank-ui@1.5.2/package/src/selector.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="institution-content-wrapper">
+    </div>
+
+    <script src="https://unpkg.com/nordigen-bank-ui@1.5.2/package/src/selector.min.js"></script>
+    <script>
+        const exampleList = [
+        {
+            "id": "ABNAMRO_ABNAGB2LXXX",
+            "name": "ABN AMRO Bank Commercial",
+            "bic": "ABNAGB2LXXX",
+            "transaction_total_days": "540",
+            "countries": [
+                "GB"
+            ],
+            "logo": "https://cdn-logos.gocardless.com/ais/ABNAMRO_FTSBDEFAXXX.png"
+        },
+        {
+            "id": "BBVAUK_BBVAGB2L",
+            "name": "BBVA",
+            "bic": "BBVAGB2L",
+            "transaction_total_days": "730",
+            "countries": [
+                "GB"
+            ],
+            "logo": "https://cdn-logos.gocardless.com/ais/BBVABE_BBVABEBB.png"
+        },
+        ];
+      
+
+        const config = {
+            // Redirect URL that is being used when modal is being closed.
+            redirectUrl: 'http://localhost:5173/dashboard',
+            // Text that will be displayed on the left side under the logo. Text is limited to 100 characters, and rest will be truncated.
+            text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean mavdvd",
+            // Logo URL that will be shown below the modal form.
+            logoUrl: 'https://cdn-logos.gocardless.com/ais/Nordigen_Logo_Black.svg',
+            // Will display country list with corresponding institutions. When `countryFilter` is set to `false`, only list of institutions will be shown.
+            countryFilter: false,
+            // style configs
+            styles: {
+                // Primary
+                // Link to google font
+                fontFamily: 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
+                fontSize: '15',
+                backgroundColor: '#F2F2F2',
+                textColor: '#222',
+                headingColor: '#222',
+                linkColor: '#8d9090',
+                // Modal
+                modalTextColor: '#1B2021',
+                modalBackgroundColor: '#fff',
+                // Button
+                buttonColor: '#3A53EE',
+                buttonTextColor: '#fff'
+            }
+        };
+
+        new institutionSelector(exampleList, 'institution-modal-content', config);
+
+    </script>
+  </body>
+</html>

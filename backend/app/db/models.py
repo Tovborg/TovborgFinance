@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Numeric, DateTime, B
 from .database import Base
 from sqlalchemy.orm import relationship
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class User(Base):
@@ -26,10 +26,10 @@ class BankRequisition(Base):
     __tablename__ = "bank_requisitions"
     id = Column(String, primary_key=True, default =lambda: str(uuid4()))
     requisition_id = Column(String, unique=True, nullable=False)  # GoCardless requisition ID
-    created = Column(DateTime, default=datetime.utcnow)
+    created = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     institution_id = Column(String, nullable=False)  # e.g. "nordea-dk"
     agreement = Column(String, nullable=True)  # GoCardless agreement ID
-    referebce = Column(String, nullable=True)  # Reference for internal use
+    reference = Column(String, nullable=True)  # Reference for internal use
     link = Column(String, nullable=False)  # Link to the bank connection
     status = Column(String)
     account_selection = Column(Boolean, default=False)

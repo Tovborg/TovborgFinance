@@ -21,7 +21,6 @@ class OpenBankingService:
                 f"{self.base_url}/token/new/",
                 data={"secret_id": self.secret_id, "secret_key": self.secret_key}
             )
-            print(response)
             response.raise_for_status()
             self.token = response.json()["access"]
             print("Access token:", self.token)
@@ -37,7 +36,6 @@ class OpenBankingService:
         )
         response.raise_for_status()
         banks = response.json()
-        print(banks)
         return banks
     
     async def create_requisition(self, institution_id: str, redirect_url: str, reference: str = None, agreement: str = None):
@@ -71,7 +69,6 @@ class OpenBankingService:
             )
             response.raise_for_status() # Raise an error for bad responses
             data = response.json()
-            print("Requisition created:", data)
             return data  # Includes link, id etc.
         
     async def list_accounts(self, requisition_id: str):

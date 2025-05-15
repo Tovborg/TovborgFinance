@@ -45,7 +45,8 @@ class Account(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
     requisition_id = Column(String, ForeignKey("bank_requisitions.id"), nullable=False)
-    account_id = Column(String, unique=True, nullable=False)  # GoCardless account ID
+    account_id = Column(String, unique=True, nullable=False)  # GoCardless resourceId
+    account_number = Column(String, nullable=False)                # Account number used for API calls
     name = Column(String, nullable=False)                     # fx "Nordea lønkonto"
     iban = Column(String, nullable=True)
     currency = Column(String, nullable=False)                 # fx "DKK"

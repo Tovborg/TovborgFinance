@@ -92,13 +92,13 @@ class OpenBankingService:
             return data
     
     # Functions for getting account details: transactions, balances etc.
-    async def get_account_metadata(self, account_id: str):
+    async def get_account_metadata(self, account_number: str):
         if not self.token:
             await self.authenticate()
 
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{self.base_url}/accounts/{account_id}/",
+                f"{self.base_url}/accounts/{account_number}/",
                 headers={
                     "Authorization": f"Bearer {self.token}",
                     "Content-Type": "application/json"
@@ -108,13 +108,13 @@ class OpenBankingService:
             data = response.json()
             return data
     
-    async def get_account_balance(self, account_id: str):
+    async def get_account_balance(self, account_number: str):
         if not self.token:
             await self.authenticate()
     
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{self.base_url}/accounts/{account_id}/balances/",
+                f"{self.base_url}/accounts/{account_number}/balances/",
                 headers={
                     "Authorization": f"Bearer {self.token}",
                     "Content-Type": "application/json"
@@ -124,13 +124,13 @@ class OpenBankingService:
             data = response.json()
             return data
         
-    async def get_account_details(self, account_id: str):
+    async def get_account_details(self, account_number: str):
         if not self.token:
             await self.authenticate()
     
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{self.base_url}/accounts/{account_id}/details/",
+                f"{self.base_url}/accounts/{account_number}/details/",
                 headers={
                     "Authorization": f"Bearer {self.token}",
                     "Content-Type": "application/json"
@@ -140,13 +140,13 @@ class OpenBankingService:
             data = response.json()
             return data
     
-    async def get_account_transactions(self, account_id: str):
+    async def get_account_transactions(self, account_number: str):
         if not self.token:
             await self.authenticate()
     
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{self.base_url}/accounts/{account_id}/transactions/",
+                f"{self.base_url}/accounts/{account_number}/transactions/",
                 headers={
                     "Authorization": f"Bearer {self.token}",
                     "Content-Type": "application/json"
@@ -158,11 +158,11 @@ class OpenBankingService:
         
     
 
-# Example usage
+# #Example usage
 # async def main():
 #     service = OpenBankingService()
 #     await service.authenticate()
-#     account_data = await service.create_requisition(institution_id="LAN_AND_SPAR_BANK_AS_LOSADKKK", redirect_url="http://localhost:5173/dashboard")
+#     account_data = await service.create_requisition(institution_id="SANDBOXFINANCE_SFIN0000", redirect_url="http://localhost:5173/dashboard")
 #     print(account_data)
 
 # if __name__ == "__main__":

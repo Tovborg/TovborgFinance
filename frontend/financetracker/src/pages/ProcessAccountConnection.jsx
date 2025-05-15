@@ -34,6 +34,25 @@ export default function ProcessAccountConnection() {
                 if (!res.ok) throw new Error("Failed to process requisition");
                 const data = await res.json();
                 console.log("Accounts fetched:", data);
+                // Test call to the fetch_transactions endpoint with the first account
+                const accountId = data.accounts[0].account_id;
+                console.log("Account ID:", accountId);
+                const fetchTransactionsRes = await fetch("http://127.0.0.1:8000/fetch_transactions", {
+                    "method": "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${jwt}`
+                    },
+                    body: JSON.stringify({
+                        account_id: accountId,
+                        reference: reference
+
+                    })
+                });
+                if (!fetchTransactionsRes.ok) throw new Error("Failed to fetch transactions");
+                const transactionsData = await fetchTransactionsRes.json();
+                console.log("Transactions fetched:", transactionsData);
+                // Here you can handle the transactions data as needed
 
                 // Redirect to the dashboard or accounts page
                 navigate('/dashboard');  // This should be changed to an appropriate page when implemented

@@ -125,9 +125,10 @@ async def process_requisition(
         accounts = await service.list_accounts(requisition_id=requisition.requisition_id)
         account_nos = accounts["accounts"]  # List of account numbers used to call the API
         print("Account numbers:", account_nos)
-        
+        created_new = False  # Flag to check if new accounts were created
+        account_infos = []  # List to store the details from get_account_details
         for account in account_nos:
-            account_info = await service.get_account_details(account_id=account)
+            account_info = await service.get_account_details(account_number=account)
             acc_data = account_info["account"]
 
             # Check if the account already exists in the database
@@ -142,9 +143,11 @@ async def process_requisition(
                 existing_account.currency = acc_data.get("currency", "DKK")
                 existing_account.requisition_id = requisition.id
             else:
+                created_new = True  # Flag to check if new accounts were created
                 # Create new account
                 new_account = Account(
                     account_id=acc_data["resourceId"],
+                    account_number=account,
                     name=acc_data.get("name", "Ukendt konto"),
                     iban=acc_data.get("iban"),
                     currency=acc_data.get("currency", "DKK"),
@@ -152,13 +155,84 @@ async def process_requisition(
                 )
                 db.add(new_account)
             
+            account_infos.append({
+                "account_id": acc_data["resourceId"],
+                "account_number": account,
+                "name": acc_data.get("name", "Ukendt konto"),
+                "iban": acc_data.get("iban"),
+                "currency": acc_data.get("currency", "DKK"),
+            })
+            
         # Commit the changes to the database
         await db.commit()
         
-        return {"message": "Accounts processed successfully", "accounts": accounts}
+        return {"message": "Accounts processed successfully", "accounts": account_infos, "created_new": created_new}
     except Exception as e:
         print("Error while fetching accounts:", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch accounts"
         )
+    
+# Fetch transactions and upload to database based on account_id
+class TransactionsRequest(BaseModel):
+    account_id: str
+    reference: str
+
+@router.post("/fetch_transactions", summary="Fetch transactions for a specific account")
+async def fetch_transactions(
+    payload: TransactionsRequest,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    # Find requisition based on reference
+    account_result = await db.execute(
+        select(BankRequisition).where(BankRequisition.reference == payload.reference)
+    )
+    requisition = account_result.scalar_one_or_none()  # Requisition linked to the account
+    if not requisition:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requisition not found"
+        )
+    print("Requisition found:", requisition)
+    # Ensure the request user is the owner of the requisition
+    if requisition.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this requisition"
+        )
+    # Find account based on account_id and requisition_id
+    result = await db.execute(
+        select(Account).where(
+            Account.account_id == payload.account_id,
+            Account.requisition_id == requisition.id
+        )
+    )
+    account = result.scalar_one_or_none()
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Account not found"
+        )
+    print("Account found:", account)
+    print("Account number:", account.account_number)
+    # Fetch transactions using the OpenBankingService
+    service = OpenBankingService(
+        secret_id=os.getenv("GOCARDLESS_SECRET_ID"),
+        secret_name=os.getenv("GOCARDLESS_SECRET_NAME"),
+        secret_key=os.getenv("GOCARDLESS_SECRET_KEY"),
+    )
+
+    try:
+        transactions = await service.get_account_transactions(account_number=account.account_number)  # Use the account_number from the database
+        print("Transactions fetched:", transactions)
+        return {"message": "Transactions fetched successfully", "transactions": transactions}
+    
+    except Exception as e:
+        print("Error while fetching transactions:", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch transactions"
+        )
+

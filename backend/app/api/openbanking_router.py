@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi import APIRouter, Depends, HTTPException, status, Header, Query
 from dotenv import load_dotenv
 import os
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,11 +43,15 @@ class RequisitionRequest(BaseModel):
     redirect_url: str
 
 @router.post("/create_requisition", summary="Create a new requisition")
+
 async def create_requisition(
     payload: RequisitionRequest,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    """
+    This route is used after a user has selected a bank. The user is redirected to the bank's login page, and the requisition is created in the DB
+    """
     try:
         service = OpenBankingService(
             secret_id=os.getenv("GOCARDLESS_SECRET_ID"),
@@ -83,4 +87,47 @@ async def create_requisition(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create requisition"
         )
+
+class RequisitionProcessRequest(BaseModel):
+    ref: str
+
+@router.post("/process_requisition", summary="Process a requisition and fetch accounts")
+async def process_requisition(
+    payload: RequisitionProcessRequest,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    # Find requisition based on reference
+    result = await db.execute(
+        select(BankRequisition).where(BankRequisition.reference == payload.ref)
+    )
+    requisition = result.scalar_one_or_none()  # return one or none
+    if not requisition:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requisition not found"
+        )
+    # Ensure the request user is the owner of the requisition
+    if requisition.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this requisition"
+        )
     
+    # Fetch accounts using the OpenBankingService
+    service = OpenBankingService(
+        secret_id=os.getenv("GOCARDLESS_SECRET_ID"),
+        secret_name=os.getenv("GOCARDLESS_SECRET_NAME"),
+        secret_key=os.getenv("GOCARDLESS_SECRET_KEY"),
+    )
+
+    try:
+        accounts = await service.list_accounts(requisition_id=requisition.requisition_id)
+        print("Accounts fetched:", accounts)
+        return {"accounts": accounts}
+    except Exception as e:
+        print("Error while fetching accounts:", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch accounts"
+        )

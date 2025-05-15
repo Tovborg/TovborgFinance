@@ -34,7 +34,7 @@ export default function SelectBank() {
         document.head.appendChild(link);
 
         const config = {
-            redirectUrl: 'http://localhost:5173/dashboard',
+            redirectUrl: 'http://localhost:5173/process-account-connection',
             text: "Vælg din bank og få et komplet økonomisk overblik",
             logoUrl: 'https://cdn-logos.gocardless.com/ais/Nordigen_Logo_Black.svg',
             countryFilter: false,
@@ -50,7 +50,7 @@ export default function SelectBank() {
                         institution.addEventListener('click', (e) => {
                             e.preventDefault();
                             const institutionId = institution.getAttribute('data-institution');
-                            window.location.href = `/bank-connect/${institutionId}`;
+                            window.location.href = `/bank-connect/SANDBOXFINANCE_SFIN0000`;
                         });
                     });
                 }, 200);

@@ -9,6 +9,7 @@ import AccountPage from './pages/AccountPage.jsx';
 import TransactionsPage from './pages/Transactions.jsx';
 import NordigenBankUI from './pages/NordigenBankUI.jsx';
 import BankRedirect from './pages/BankRedirect.jsx';
+import ProcessAccountConnection from './pages/ProcessAccountConnection.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ createRoot(document.getElementById('root')).render(
             <Route path='/transactions' element={<TransactionsPage />} />
             <Route path='/select-bank' element={<NordigenBankUI />} />
             <Route path='/bank-connect/:institutionId' element={<BankRedirect />} />
+            <Route path='/process-account-connection' element={<ProcessAccountConnection />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

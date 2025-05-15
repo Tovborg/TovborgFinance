@@ -28,7 +28,7 @@ export default function BankRedirect() {
                     },
                     body: JSON.stringify({
                         institution_id: institutionId,
-                        redirect_url: "http://localhost:5173/dashboard",
+                        redirect_url: "http://localhost:5173/process-account-connection",
                     })
                 });
                 if (!response.ok) throw new Error("Failed to create requisition");

@@ -4,7 +4,7 @@ import os
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.db.database import get_db
-from app.db.models import User, BankRequisition
+from app.db.models import User, BankRequisition, Account
 from app.services.openbanking import OpenBankingService
 from app.dependencies import get_current_user
 from sqlalchemy.orm import Session
@@ -123,8 +123,39 @@ async def process_requisition(
 
     try:
         accounts = await service.list_accounts(requisition_id=requisition.requisition_id)
-        print("Accounts fetched:", accounts)
-        return {"accounts": accounts}
+        account_nos = accounts["accounts"]  # List of account numbers used to call the API
+        print("Account numbers:", account_nos)
+        
+        for account in account_nos:
+            account_info = await service.get_account_details(account_id=account)
+            acc_data = account_info["account"]
+
+            # Check if the account already exists in the database
+            result = await db.execute(
+                select(Account).where(Account.account_id==acc_data["resourceId"])
+            )
+            existing_account = result.scalar_one_or_none()
+            if existing_account:
+                # Update existing account
+                existing_account.name = acc_data.get("name", "Ukendt konto")
+                existing_account.iban = acc_data.get("iban")
+                existing_account.currency = acc_data.get("currency", "DKK")
+                existing_account.requisition_id = requisition.id
+            else:
+                # Create new account
+                new_account = Account(
+                    account_id=acc_data["resourceId"],
+                    name=acc_data.get("name", "Ukendt konto"),
+                    iban=acc_data.get("iban"),
+                    currency=acc_data.get("currency", "DKK"),
+                    requisition_id=requisition.id
+                )
+                db.add(new_account)
+            
+        # Commit the changes to the database
+        await db.commit()
+        
+        return {"message": "Accounts processed successfully", "accounts": accounts}
     except Exception as e:
         print("Error while fetching accounts:", e)
         raise HTTPException(

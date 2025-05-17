@@ -58,10 +58,10 @@ export default function ProcessAccountConnection() {
                 
 
                 // Redirect to the dashboard or accounts page
-                navigate('/dashboard');  // This should be changed to an appropriate page when implemented
+                navigate('/open-banking-success');
             } catch (error) {
                 console.error("Error processing requisition:", error);
-                navigate('/dashboard');  // This should be changed to an appropriate error page when implemented
+                navigate('/open-banking-error');
             }
         };
         if (reference && jwt) {

@@ -37,7 +37,7 @@ export default function BankRedirect() {
                 window.location.href = data.link;
             } catch (error) {
                 console.error("Error creating requisition:", error);
-                navigate('/dashboard');  // This should be changed to an appropriate error page when implemented
+                navigate('/open-banking-error'); 
             }
         };
         createRequisition();

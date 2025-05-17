@@ -10,6 +10,8 @@ import TransactionsPage from './pages/Transactions.jsx';
 import NordigenBankUI from './pages/NordigenBankUI.jsx';
 import BankRedirect from './pages/BankRedirect.jsx';
 import ProcessAccountConnection from './pages/ProcessAccountConnection.jsx';
+import OpenBankingSuccess from './pages/OpenBankingSuccess.jsx';
+import OpenBankingError from './pages/OpenBankingError.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -28,6 +30,9 @@ createRoot(document.getElementById('root')).render(
             <Route path='/select-bank' element={<NordigenBankUI />} />
             <Route path='/bank-connect/:institutionId' element={<BankRedirect />} />
             <Route path='/process-account-connection' element={<ProcessAccountConnection />} />
+            {/* Open Banking status routes */}
+            <Route path='/open-banking-success' element={<OpenBankingSuccess />} />
+            <Route path='/open-banking-error' element={<OpenBankingError />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

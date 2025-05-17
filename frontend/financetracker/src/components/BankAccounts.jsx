@@ -1,30 +1,38 @@
+import { useEffect, useState } from "react";
+import { Navigate, useSearchParams, useNavigate } from "react-router-dom";
 import { FaDollarSign, FaEuroSign } from "react-icons/fa";
-
-const accounts = [
-    {
-        name: "Your main account (USD)",
-        iban: "USD395768402049576GFH598",
-        currency: "USD"
-    },
-    {
-        name: "My spending account (USD)",
-        iban: "USD395768402049576GFH595",
-        currency: "USD"
-    },
-    {
-        name: "My EUR account",
-        iban: "EU395768402049576GFH590",
-        currency: "EUR"
-    },
-    {
-        name: "My savings account",
-        iban: "USD395768402049576GFH597",
-        currency: "USD"
-    },
-]
+import { useAuth } from "../context/AuthContext";
 
 
 export default function BankAccounts() {
+    const { jwt } = useAuth();
+    const [accounts, setAccounts] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      try {
+        const fetchAccounts = async () => {
+          const res = await fetch("http://127.0.0.1:8000/accounts", {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${jwt}`,
+            }
+          });
+          if (!res.ok) {
+            throw new Error("Failed to fetch accounts");
+          };
+          const data = await res.json();
+          setAccounts(data.accounts);
+          console.log(data)
+
+        };
+        if (jwt) {
+          fetchAccounts();
+        }
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+      }
+    }, [jwt, navigate]);
     return (
       <div className="bg-gray-800 rounded-xl p-6 shadow-md w-full">
         <h2 className="text-lg font-semibold text-white mb-4">My accounts</h2>

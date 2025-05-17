@@ -4,8 +4,9 @@ import os
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.db.database import get_db
-from app.db.models import User, BankRequisition, Account
+from app.db.models import User, BankRequisition, Account, Transaction
 from app.services.openbanking import OpenBankingService
+from app.services.save_transactions import save_transactions
 from app.dependencies import get_current_user
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
@@ -225,9 +226,10 @@ async def fetch_transactions(
     )
 
     try:
-        transactions = await service.get_account_transactions(account_number=account.account_number)  # Use the account_number from the database
-        print("Transactions fetched:", transactions)
-        return {"message": "Transactions fetched successfully", "transactions": transactions}
+        transactions_data = await service.get_account_transactions(account_number=account.account_number)  # Use the account_number from the database
+        print("Transactions data:", transactions_data)
+        await save_transactions(transactions_data, account.id, db)  # Save transactions to the database
+        return {"message": "Transactions fetched successfully", "transactions": transactions_data}
     
     except Exception as e:
         print("Error while fetching transactions:", e)

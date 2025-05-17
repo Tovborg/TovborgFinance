@@ -71,3 +71,4 @@ class Transaction(Base):
     transaction_type = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     account = relationship("Account", back_populates="transactions")
+    status = Column(String, nullable=True)  # Status of the transaction (e.g. "pending", "completed")

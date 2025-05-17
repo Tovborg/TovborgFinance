@@ -25,7 +25,7 @@ createRoot(document.getElementById('root')).render(
             <Route path='/' element={<App />} />
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/accounts-page' element={<AccountsPage />} />
-            <Route path='/account' element={<AccountPage />} />
+            <Route path='/account/:account_id' element={<AccountPage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
             <Route path='/select-bank' element={<NordigenBankUI />} />
             <Route path='/bank-connect/:institutionId' element={<BankRedirect />} />

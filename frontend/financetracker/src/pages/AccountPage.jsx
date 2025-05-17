@@ -2,6 +2,9 @@ import Navbar from "../components/Navbar"
 import Transactions from "../components/Transactions";
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import { useParams, Navigate } from "react-router-dom";
+
 
 const chartData = [
     { date: "20 Sep", balance: 20 },
@@ -12,7 +15,7 @@ const chartData = [
 ]
 
 export default function AccountPage() {
-    const { user, isLoading } = useAuth();
+    const { user, isLoading, jwt } = useAuth();
     // Check if the user is authenticated
     if (isLoading) {
         return <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">Loading...</div>;
@@ -20,6 +23,38 @@ export default function AccountPage() {
     if (!user) {
         return <Navigate to="/" />;
     }
+    const { account_id } = useParams();
+    const [accountInfo, setAccountInfo] = useState(null);
+    console.log("Account ID:", account_id);
+    // Check if the account_id is valid
+    if (!account_id) {
+        return <Navigate to="/dashboard" />;
+    }
+    // Fetch account information from the backend
+    useEffect(() => {
+        const fetchAccountInfo = async () => {
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/accounts/${account_id}`, {
+                    method: "GET", 
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${jwt}`, // Use the JWT token from the context
+                    }
+                });
+                if (!res.ok) throw new Error("Failed to fetch account info");
+                const data = await res.json();
+                setAccountInfo(data);
+                console.log("Account Info:", data);
+            } catch (error) {
+                console.error("Error fetching account info:", error);
+            }
+        };
+        if (jwt && account_id) {
+            fetchAccountInfo();
+        }
+    }, [jwt, account_id]);
+
+    
     return (
         <div className="min-h-screen bg-gray-900 text-white">
             <Navbar />

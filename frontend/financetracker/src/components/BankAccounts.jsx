@@ -59,18 +59,16 @@ export default function BankAccounts() {
   
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end w-full sm:w-auto">
-                <button className="text-sm px-3 py-2 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">
-                  Transactions
+                <button onClick={() => navigate(`/account/${encodeURIComponent(account.id)}`)} className="text-sm px-3 py-2 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">
+                  View Account
                 </button>
-                <button className="text-sm px-3 py-2 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">
-                  Share IBAN
-                </button>
+                
               </div>
             </li>
           ))}
         </ul>
   
-        <button className="mt-4 text-sm px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-500">
+        <button onClick={() => window.location.href = "/select-bank"} className="mt-4 text-sm px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-500">
           + Add new account
         </button>
       </div>

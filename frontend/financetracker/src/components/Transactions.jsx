@@ -1,3 +1,5 @@
+import { Navigate, useSearchParams, useNavigate } from "react-router-dom";
+
 const transactions = [
     {
         product: "Iphone 15 PRO Max",
@@ -53,6 +55,7 @@ const statusColors = {
 };
 
 export default function Transactions() {
+    const navigate = useNavigate();
     return (
         <div className="bg-gray-800 rounded-xl p-6 shadow-md w-full overflow-x-auto">
             <h2 className="text-lg font-semibold text-white">Transactions</h2>
@@ -95,7 +98,7 @@ export default function Transactions() {
             </table>
 
             <div className="mt-4">
-                <button className="text-sm px-4 py-2 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">
+                <button onClick={() => navigate("/transactions")} className="text-sm px-4 py-2 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">
                     View all transactions →
                 </button>
             </div>

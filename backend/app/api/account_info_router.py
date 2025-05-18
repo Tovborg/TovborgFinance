@@ -6,7 +6,7 @@ from app.dependencies import get_current_user
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
+from sqlalchemy import func
 load_dotenv()
 
 router = APIRouter()
@@ -91,3 +91,59 @@ async def get_all_transactions(
     )
     transactions = result.scalars().all()
     return {"transactions": [tx.as_dict() for tx in transactions]}
+
+# AIO transaction endpoint with filtering and pagination
+@router.get("/transactions_filter", summary="Get transactions with filtering and pagination and optionally filtered by account")
+async def get_transactions_filter(
+    account_id: str = Query("all", description="The ID of the account to retrieve transactions for, or 'all' for all accounts"),
+    page: int = Query(1, ge=1,description="The page number for pagination"),
+    page_size: int = Query(10, ge=1, description="The number of transactions per page"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Find relevant account_ids
+    if account_id == "all":
+        # Get all account IDs associated with the current user
+        result = await db.execute(
+            select(Account.id)
+            .join(BankRequisition)
+            .where(BankRequisition.user_id == current_user.id)
+        )
+        account_ids = [row[0] for row in result.all()]
+    else:
+        result = await db.execute(
+            select(Account)
+            .options(selectinload(Account.requisition))
+            .where(Account.id == account_id)   
+        )
+        account = result.scalar_one_or_none()
+        if not account:
+            raise HTTPException(404, detail="Account not found")
+        if account.requisition.user_id != current_user.id:
+            raise HTTPException(403, detail="You do not have permission to access this account.")
+        account_ids = [account.id]
+
+    # Total count for pagination
+    count_result = await db.execute(
+        select(func.count(Transaction.id))
+        .where(Transaction.account_id.in_(account_ids))
+    )
+    total = count_result.scalar_one_or_none()
+
+    # Paginated transactions
+    result = await db.execute(
+        select(Transaction)
+        .options(selectinload(Transaction.account)) # Eager load account to avoid N+1 queries
+        .where(Transaction.account_id.in_(account_ids))
+        .order_by(Transaction.booking_date.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )
+    transactions = result.scalars().all()
+
+    return {
+        "transactions": [tx.as_dict() for tx in transactions],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }

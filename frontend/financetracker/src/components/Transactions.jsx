@@ -28,6 +28,7 @@ export default function Transactions({ transactions = [] }) {
                 <thead className="text-left text-gray-400 text-sm hidden sm:table-header-group">
                     <tr>
                         <th className="px-2">Description</th>
+                        <th className="px-2">Account</th>
                         <th className="px-2">Amount</th>
                         <th className="px-2">Creditor</th>
                         <th className="px-2">Date</th>
@@ -39,6 +40,9 @@ export default function Transactions({ transactions = [] }) {
                         <tr key={index} className="flex flex-col sm:table-row bg-gray-700 sm:bg-transparent rounded-lg sm:rounded-none p-3 sm:p-0 mb-2 sm:mb-0">
                             <td className="text-sm font-semibold text-gray-300 px-2 py-1">
                                 {tx.remittance_information || tx.description || "No description"}
+                            </td>
+                            <td className="text-sm font-semibold text-gray-300 px-2 py-1">
+                                {tx.account_name || "Unknown"}
                             </td>
                             <td className="text-sm font-semibold text-white px-2 py-1">
                              {tx.amount} {currencyMap[tx.currency] || tx.currency}

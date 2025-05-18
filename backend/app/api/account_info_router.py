@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from app.db.database import get_db
-from app.db.models import User, Account, Transaction
+from app.db.models import User, Account, Transaction, BankRequisition
 from dotenv import load_dotenv
 from app.dependencies import get_current_user
 from sqlalchemy.future import select
@@ -73,3 +73,21 @@ async def get_transactions(
     
     return {"transactions": [t.as_dict() for t in transactions]}
 
+@router.get("/transactions/all", summary="Get all transactions for all accounts")
+async def get_all_transactions(
+    top_n: int = Query(50, description="The number of transactions to retrieve"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Join transactions with accounts and requisitions to filter by user
+    result = await db.execute(
+        select(Transaction)
+        .options(selectinload(Transaction.account)) # Eager load account to avoid N+1 queries
+        .join(Account, Transaction.account_id == Account.id)
+        .join(BankRequisition, Account.requisition_id == BankRequisition.id)
+        .where(BankRequisition.user_id == current_user.id)
+        .order_by(Transaction.booking_date.desc())
+        .limit(top_n)
+    )
+    transactions = result.scalars().all()
+    return {"transactions": [tx.as_dict() for tx in transactions]}

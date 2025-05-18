@@ -79,6 +79,7 @@ class Transaction(Base):
         return {
             "id": self.id,
             "account_id": self.account_id,
+            "account_name": self.account.name if self.account else None,
             "transaction_id": self.transaction_id,
             "amount": str(self.amount),  # Convert Decimal to string for JSON serialization
             "currency": self.currency,

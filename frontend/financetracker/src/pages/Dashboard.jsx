@@ -7,9 +7,10 @@ import RevenueChart from "../components/RevenueChart"
 import SavingsGoalCard from "../components/SavingsGoalCard"
 import BankAccounts from "../components/BankAccounts"
 import Transactions from "../components/Transactions"
+import { useEffect, useState } from "react"
 
 export default function Dashboard() {
-    const { user, isLoading } = useAuth()
+    const { user, isLoading, jwt } = useAuth()
     // Check if the user is authenticated
     if (isLoading) {
         return <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">Loading...</div>
@@ -17,6 +18,31 @@ export default function Dashboard() {
     if (!user) {
         return <Navigate to="/" />
     }
+
+    const [transactions, setTransactions] = useState([])
+
+    // Fetch transactions for the user
+    useEffect(() => {
+        const fetchAllTransactions = async () => {
+            try {
+              const res = await fetch("http://127.0.0.1:8000/transactions/all?top_n=10", {
+                method: "GET",
+                headers: {
+                  "Authorization": `Bearer ${jwt}`,
+                },
+              });
+              if (!res.ok) throw new Error("Failed to fetch all transactions");
+              const data = await res.json();
+              setTransactions(data.transactions);
+            } catch (error) {
+              console.error("Error fetching all transactions:", error);
+            }
+          };
+        
+          if (jwt) fetchAllTransactions();
+    }, [jwt]);
+
+
     
     return (
         <div className="min-h-screen bg-gray-900 text-white">
@@ -106,18 +132,7 @@ export default function Dashboard() {
                 </section>
                 {/* Transactions Section */}
                 <section className="mt-6">
-                <Transactions transactions={[
-                    {
-                        product: "Iphone 15 PRO Max",
-                        vendor: "Apple Inc.",
-                        price: "$899",
-                        due: "30 Mar 2025",
-                        status: "Pending",
-                        account: "xxx4565494",
-                        icon: "https://img.icons8.com/ios-filled/50/ffffff/mac-os.png"
-                    },
-                    // ...
-                ]} />
+                <Transactions transactions={transactions} />
                 </section>
             </main>
         </div>

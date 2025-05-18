@@ -23,23 +23,24 @@ export default function Dashboard() {
 
     // Fetch transactions for the user
     useEffect(() => {
-        const fetchAllTransactions = async () => {
+        const fetchLatestTransactions = async () => {
             try {
-              const res = await fetch("http://127.0.0.1:8000/transactions/all?top_n=10", {
-                method: "GET",
-                headers: {
-                  "Authorization": `Bearer ${jwt}`,
-                },
-              });
-              if (!res.ok) throw new Error("Failed to fetch all transactions");
-              const data = await res.json();
-              setTransactions(data.transactions);
+                const res = await fetch("http://127.0.0.1:8000/transactions?account_id=all&page=1&page_size=10", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${jwt}`,
+                    },
+                });
+                if (!res.ok) throw new Error("Failed to fetch transactions");
+                const data = await res.json();
+                setTransactions(data.transactions);  // Bemærk: arrayen ligger under "transactions"
             } catch (error) {
-              console.error("Error fetching all transactions:", error);
+                console.error("Error fetching transactions:", error);
             }
-          };
-        
-          if (jwt) fetchAllTransactions();
+        };
+    
+        if (jwt) fetchLatestTransactions();
     }, [jwt]);
 
 

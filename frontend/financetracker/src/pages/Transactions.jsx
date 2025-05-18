@@ -42,7 +42,7 @@ export default function TransactionsPage() {
     useEffect(() => {
         const fetchTransactions = async () => {
             try {
-                const res = await fetch(`http://127.0.0.1:8000/transactions_filter?account_id=all&page=${page}&page_size=${pageSize}`, {
+                const res = await fetch(`http://127.0.0.1:8000/transactions?account_id=all&page=${page}&page_size=${pageSize}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

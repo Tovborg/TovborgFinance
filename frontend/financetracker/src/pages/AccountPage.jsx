@@ -45,7 +45,7 @@ export default function AccountPage() {
         const fetchAccountInfo = async () => {
             try {
                 const res = await fetch(`http://127.0.0.1:8000/accounts/${account_id}`, {
-                    method: "GET", 
+                    method: "GET",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${jwt}`, // Use the JWT token from the context
@@ -64,19 +64,20 @@ export default function AccountPage() {
         }
     }, [jwt, account_id]);
     // Fetch account transactions from the backend
+    // Fetch account transactions from the backend
     useEffect(() => {
         const fetchTransactions = async () => {
             try {
-                const res = await fetch(`http://127.0.0.1:8000/transactions?account_id=${account_id}&top_n=10`, {
+                const res = await fetch(`http://127.0.0.1:8000/transactions?account_id=${account_id}&page=1&page_size=10`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${jwt}`, // Use the JWT token from the context
+                        Authorization: `Bearer ${jwt}`,
                     }
                 });
                 if (!res.ok) throw new Error("Failed to fetch transactions");
                 const data = await res.json();
-                setTransactions(data.transactions);
+                setTransactions(data.transactions); // data.transactions fordi det er wrapped i nyt format
             } catch (error) {
                 console.error("Error fetching transactions:", error);
             }

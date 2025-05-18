@@ -28,8 +28,8 @@ class OpenBankingService:
     async def get_banks(self, country_code="DK"):
         if not self.token:
             await self.authenticate()
-        
-        async with httpx.AsyncClient() as client:
+        timeout = httpx.Timeout(10.0, connect=5.0)
+        async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.get(
             f"{self.base_url}/institutions/?country={country_code}",
             headers={"Authorization": f"Bearer {self.token}"}
@@ -160,9 +160,13 @@ class OpenBankingService:
 
 # #Example usage
 # async def main():
-#     service = OpenBankingService()
+#     load_dotenv()
+#     GOCARDLESS_SECRET_ID = os.getenv("GOCARDLESS_SECRET_ID")
+#     GOCARDLESS_SECRET_NAME = os.getenv("GOCARDLESS_SECRET_NAME")
+#     GOCARDLESS_SECRET_KEY = os.getenv("GOCARDLESS_SECRET_KEY")
+#     service = OpenBankingService(secret_id=GOCARDLESS_SECRET_ID, secret_name=GOCARDLESS_SECRET_NAME, secret_key=GOCARDLESS_SECRET_KEY)
 #     await service.authenticate()
-#     account_data = await service.create_requisition(institution_id="SANDBOXFINANCE_SFIN0000", redirect_url="http://localhost:5173/dashboard")
+#     account_data = await service.get_banks()
 #     print(account_data)
 
 # if __name__ == "__main__":

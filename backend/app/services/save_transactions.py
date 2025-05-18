@@ -26,7 +26,7 @@ async def save_transactions(transactions_data: dict, account_db_id: str, db: Asy
             )
             if result.scalar_one_or_none():
                 continue  # Skip if transaction already exists
-
+            print(tx)
             transactionAmount = tx.get("transactionAmount", {})
             amount = transactionAmount.get("amount", 0)
             currency = transactionAmount.get("currency", "DKK")
@@ -34,9 +34,9 @@ async def save_transactions(transactions_data: dict, account_db_id: str, db: Asy
             valueDate = datetime.strptime(tx.get("valueDate"), "%Y-%m-%d") if tx.get("valueDate") else None
             creditorName = tx.get("creditorName", "Unknown")
             remittanceInformationUnstructured = tx.get("remittanceInformationUnstructured", "Unknown")
-            # If there's no remittance information try remittanceInformationStructuredArray
+            # If there's no remittance information try remittanceInformationUnstructuredArray
             if remittanceInformationUnstructured == "Unknown":
-                remittanceInformationUnstructuredArray = tx.get("remittanceInformationStructuredArray", [])
+                remittanceInformationUnstructuredArray = tx.get("remittanceInformationUnstructuredArray", [])
                 if remittanceInformationUnstructuredArray:
                     remittanceInformationUnstructured = remittanceInformationUnstructuredArray[0]
                 else:

@@ -17,10 +17,10 @@ const chartData = [
 const currencyMap = {
     "USD": "$",
     "EUR": "€",
-    "DKK": "kr",
+    "DKK": "kr.",
     "GBP": "£",
-    "SEK": "kr",
-    "NOK": "kr",
+    "SEK": "kr.",
+    "NOK": "kr.",
 }
 
 export default function AccountPage() {
@@ -35,6 +35,8 @@ export default function AccountPage() {
     const { account_id } = useParams();
     const [accountInfo, setAccountInfo] = useState(null);
     const [transactions, setTransactions] = useState([]);
+    const [moneyIn, setMoneyIn] = useState(0);
+    const [moneyOut, setMoneyOut] = useState(0);
     console.log("Account ID:", account_id);
     // Check if the account_id is valid
     if (!account_id) {
@@ -85,6 +87,26 @@ export default function AccountPage() {
         if (jwt && account_id) {
             fetchTransactions();
         }
+    }, [jwt, account_id]);
+    // Fetch account summary for money in/out
+    useEffect(() => {
+        const fetchSummary = async () => {
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/accounts/${account_id}/summary`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`
+                    }
+                });
+                const data = await res.json();
+                setMoneyOut(data.money_out);
+                setMoneyIn(data.money_in);
+            } catch (error) {
+                console.error("Error fetching summary", error);
+            }
+        };
+    
+        if (jwt && account_id) fetchSummary();
     }, [jwt, account_id]);
     // map currency to symbol
     const currencySymbol = currencyMap[accountInfo?.account?.currency] || accountInfo?.account?.currency;
@@ -148,7 +170,7 @@ export default function AccountPage() {
                     {/* Money out */}
                     <div className="bg-gray-800 rounded-xl p-6 shadow-md">
                         <p className="text-md font-medium text-gray-400 mb-2 mt-10 uppercase">Money out last 30 days</p>
-                        <h3 className="text-3xl mt-5 font-bold text-white">{currencySymbol}0.00</h3>
+                        <h3 className="text-3xl mt-5 font-bold text-red-400">{currencySymbol} {moneyOut}</h3>
                         <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
                         <div className="h-1 bg-gray-700 mt-4 rounded" />
                         <div className="flex justify-end mt-4 mb-5">
@@ -160,7 +182,7 @@ export default function AccountPage() {
                     {/* Money in */}
                     <div className="bg-gray-800 rounded-xl p-6 shadow-md">
                         <p className="text-md font-medium text-gray-400 mb-2 mt-10 uppercase">Money In last 30 days</p>
-                        <h3 className="text-3xl mt-5 font-bold text-white">{currencySymbol}0.00</h3>
+                        <h3 className="text-3xl mt-5 font-bold text-green-400">{currencySymbol} {moneyIn}</h3>
                         <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
                         <div className="h-1 bg-gray-700 mt-4 rounded" />
                         <div className="flex justify-end mt-4 mb-5">

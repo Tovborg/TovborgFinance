@@ -4,7 +4,6 @@ import { Navigate } from "react-router-dom";
 
 export default function SelectBank() {
     const { user, isLoading } = useAuth();
-    console.log("Component mounted");
     if (isLoading) {
         return <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">Loading...</div>
     }
@@ -51,7 +50,7 @@ export default function SelectBank() {
                         institution.addEventListener('click', (e) => {
                             e.preventDefault();
                             const institutionId = institution.getAttribute('data-institution');
-                            window.location.href = `/bank-connect/SANDBOXFINANCE_SFIN0000`;
+                            window.location.href = `/bank-connect/${institutionId}`;
                         });
                     });
                 }, 200);

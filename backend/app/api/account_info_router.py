@@ -7,6 +7,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func
+from datetime import datetime, timedelta
 load_dotenv()
 
 router = APIRouter()
@@ -92,4 +93,51 @@ async def get_transactions_filter(
         "total": total,
         "page": page,
         "page_size": page_size,
+    }
+
+@router.get("/accounts/{account_id}/summary")
+async def get_account_summary(
+    account_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # check ownership
+    result = await db.execute(
+        select(Account)
+        .options(selectinload(Account.requisition))
+        .where(Account.id == account_id)
+    )
+    account = result.scalar_one_or_none()
+    # Early check for account not found and authorization
+    if not account:
+        raise HTTPException(404, detail="Account not found")  
+    if account.requisition.user_id != current_user.id:
+        raise HTTPException(403, detail="You do not have permission to access this account.")
+    
+    # Calculate the summary
+    thirty_days_ago = datetime.now() - timedelta(days=30)
+    money_out_query = await db.execute(
+        select(func.sum(Transaction.amount))
+        .where(
+            Transaction.account_id == account_id,
+            Transaction.booking_date >= thirty_days_ago,
+            Transaction.amount < 0
+        )
+    )
+    money_out = money_out_query.scalar() or 0
+    money_in_query = await db.execute(
+        select(func.sum(Transaction.amount))
+        .where(
+            Transaction.account_id == account_id,
+            Transaction.booking_date >= thirty_days_ago,
+            Transaction.amount > 0
+        )
+    )
+    money_in = money_in_query.scalar() or 0
+
+    return {
+        "account_id": account_id,
+        "money_out": float(money_out),
+        "money_in": abs(float(money_in)), # absolute value for money in
+        "currency": account.currency,
     }

@@ -7,51 +7,7 @@ import { Navigate } from "react-router-dom";
 
 
 const transactions = [
-    {
-        product: "Iphone 15 PRO Max",
-        vendor: "Apple Inc.",
-        price: "$899",
-        due: "30 Mar 2025",
-        status: "Pending",
-        account: "xxx4565494",
-        icon: "https://img.icons8.com/ios-filled/50/ffffff/mac-os.png"
-    },
-    {
-        product: "Nitro Basic for 12 months",
-        vendor: "Discord Inc.",
-        price: "$99",
-        due: "27 Mar 2025",
-        status: "Completed",
-        account: "xxx4565494",
-        icon: "https://img.icons8.com/ios-filled/50/ffffff/discord-logo.png"
-    },
-    {
-        product: "Figma PRO yearly plan",
-        vendor: "Figma Inc.",
-        price: "$199",
-        due: "10 Mar 2025",
-        status: "Completed",
-        account: "xxx4565494",
-        icon: "https://img.icons8.com/ios-filled/50/ffffff/figma.png"
-    },
-    {
-        product: "Spotify Platinum",
-        vendor: "Spotify Inc.",
-        price: "$29",
-        due: "05 Mar 2025",
-        status: "Failed",
-        account: "xxx4565494",
-        icon: "https://img.icons8.com/ios-filled/50/ffffff/spotify--v1.png"
-    },
-    {
-        product: "iMac 27 Inch",
-        vendor: "Apple Inc.",
-        price: "$1899",
-        due: "01 Feb 2025",
-        status: "Completed",
-        account: "xxx4565494",
-        icon: "https://img.icons8.com/ios-filled/50/ffffff/mac-os.png"
-    }
+
 ];
 
 const statusColors = {

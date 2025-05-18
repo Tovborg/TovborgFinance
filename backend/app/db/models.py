@@ -51,6 +51,8 @@ class Account(Base):
     iban = Column(String, nullable=True)
     currency = Column(String, nullable=False)                 # fx "DKK"
     created_at = Column(DateTime, default=datetime.utcnow)
+    balance = Column(Numeric, nullable=False)                # Account balance
+    balance_updated_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
 
     transactions = relationship("Transaction", back_populates="account", cascade="all, delete-orphan")
     requisition = relationship("BankRequisition", back_populates="accounts")
@@ -72,3 +74,21 @@ class Transaction(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     account = relationship("Account", back_populates="transactions")
     status = Column(String, nullable=True)  # Status of the transaction (e.g. "pending", "completed")
+
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "account_id": self.account_id,
+            "transaction_id": self.transaction_id,
+            "amount": str(self.amount),  # Convert Decimal to string for JSON serialization
+            "currency": self.currency,
+            "booking_date": self.booking_date.isoformat(),
+            "value_date": self.value_date.isoformat() if self.value_date else None,
+            "description": self.description,
+            "remittance_information": self.remittance_information,
+            "creditor_name": self.creditor_name,
+            "debtor_name": self.debtor_name,
+            "transaction_type": self.transaction_type,
+            "created_at": self.created_at.isoformat(),
+            "status": self.status,
+        }

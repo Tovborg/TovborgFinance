@@ -130,6 +130,14 @@ async def process_requisition(
         account_infos = []  # List to store the details from get_account_details
         for account in account_nos:
             account_info = await service.get_account_details(account_number=account)
+            account_balance = await service.get_account_balance(account_number=account)
+            print("Account balance:", account_balance)
+            balance_entry = next(
+                (b for b in account_balance.get("balances", []) if b["balanceType"] in ["expected", "interimAvailable"]),
+                None
+            )
+            balance_amount = balance_entry["balanceAmount"]["amount"] if balance_entry else None
+
             acc_data = account_info["account"]
 
             # Check if the account already exists in the database
@@ -150,6 +158,8 @@ async def process_requisition(
                     account_id=acc_data["resourceId"],
                     account_number=account,
                     name=acc_data.get("name", "Ukendt konto"),
+                    balance=balance_amount,
+                    balance_updated_at=datetime.now(timezone.utc),
                     iban=acc_data.get("iban"),
                     currency=acc_data.get("currency", "DKK"),
                     requisition_id=requisition.id

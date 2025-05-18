@@ -106,7 +106,18 @@ export default function Dashboard() {
                 </section>
                 {/* Transactions Section */}
                 <section className="mt-6">
-                    <Transactions />
+                <Transactions transactions={[
+                    {
+                        product: "Iphone 15 PRO Max",
+                        vendor: "Apple Inc.",
+                        price: "$899",
+                        due: "30 Mar 2025",
+                        status: "Pending",
+                        account: "xxx4565494",
+                        icon: "https://img.icons8.com/ios-filled/50/ffffff/mac-os.png"
+                    },
+                    // ...
+                ]} />
                 </section>
             </main>
         </div>

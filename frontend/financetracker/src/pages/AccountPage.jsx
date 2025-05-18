@@ -14,6 +14,15 @@ const chartData = [
     { date: "24 Sep", balance: 9543 },
 ]
 
+const currencyMap = {
+    "USD": "$",
+    "EUR": "€",
+    "DKK": "kr",
+    "GBP": "£",
+    "SEK": "kr",
+    "NOK": "kr",
+}
+
 export default function AccountPage() {
     const { user, isLoading, jwt } = useAuth();
     // Check if the user is authenticated
@@ -25,6 +34,7 @@ export default function AccountPage() {
     }
     const { account_id } = useParams();
     const [accountInfo, setAccountInfo] = useState(null);
+    const [transactions, setTransactions] = useState([]);
     console.log("Account ID:", account_id);
     // Check if the account_id is valid
     if (!account_id) {
@@ -53,8 +63,31 @@ export default function AccountPage() {
             fetchAccountInfo();
         }
     }, [jwt, account_id]);
-
-    
+    // Fetch account transactions from the backend
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/transactions?account_id=${account_id}&top_n=10`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${jwt}`, // Use the JWT token from the context
+                    }
+                });
+                if (!res.ok) throw new Error("Failed to fetch transactions");
+                const data = await res.json();
+                setTransactions(data.transactions);
+            } catch (error) {
+                console.error("Error fetching transactions:", error);
+            }
+        };
+        if (jwt && account_id) {
+            fetchTransactions();
+        }
+    }, [jwt, account_id]);
+    // map currency to symbol
+    const currencySymbol = currencyMap[accountInfo?.account?.currency] || accountInfo?.account?.currency;
+    console.log("transactions", transactions);
     return (
         <div className="min-h-screen bg-gray-900 text-white">
             <Navbar />
@@ -66,7 +99,7 @@ export default function AccountPage() {
                         <div>
                             <p className="text-sm text-indigo-400 uppercase font-medium">Your Account</p>
                             <h2 className="text-2xl sm:text-3xl font-bold text-white mt-2">
-                                Welcome Back,<br />Emil! 👋
+                                Welcome Back,<br />{user.name}! 👋
                             </h2>
                             <p className="mt-10 text-md text-gray-400">
                                 Everything seems ok and up-to-date with <br /> your account since your last visit.
@@ -78,8 +111,8 @@ export default function AccountPage() {
                     <div className="bg-gray-800 rounded-xl p-6 shadow-md">
                         <div className="mb-4 text-center">
                             <p className="text-sm font-medium text-gray-400 mb-2 uppercase">Account balance</p>
-                            <h3 className="text-2xl font-semibold">$9,543.12</h3>
-                            <p className="text-sm text-green-400 mt-2">↑ $149.32 Today, Sep 25</p>
+                            <h3 className="text-2xl font-semibold">{currencySymbol}{accountInfo?.account?.balance}</h3>
+                            <p className="text-sm text-green-400 mt-2">↑ {currencySymbol}149.32 Today, Sep 25</p>
                         </div>
                         <div className="h-32">
                             <ResponsiveContainer width="100%" height="100%">
@@ -94,7 +127,7 @@ export default function AccountPage() {
                                     <Tooltip
                                         contentStyle={{ backgroundColor: "#1f2937", border: "none" }}
                                         labelStyle={{ color: "#9ca3af" }}
-                                        formatter={(value) => [`$${value}`, "Balance"]}
+                                        formatter={(value) => [`${currencySymbol}${value}`, "Balance"]}
                                     />
                                     <Line
                                         type="monotone"
@@ -114,7 +147,7 @@ export default function AccountPage() {
                     {/* Money out */}
                     <div className="bg-gray-800 rounded-xl p-6 shadow-md">
                         <p className="text-md font-medium text-gray-400 mb-2 mt-10 uppercase">Money out last 30 days</p>
-                        <h3 className="text-3xl mt-5 font-bold text-white">$0.00</h3>
+                        <h3 className="text-3xl mt-5 font-bold text-white">{currencySymbol}0.00</h3>
                         <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
                         <div className="h-1 bg-gray-700 mt-4 rounded" />
                         <div className="flex justify-end mt-4 mb-5">
@@ -126,7 +159,7 @@ export default function AccountPage() {
                     {/* Money in */}
                     <div className="bg-gray-800 rounded-xl p-6 shadow-md">
                         <p className="text-md font-medium text-gray-400 mb-2 mt-10 uppercase">Money In last 30 days</p>
-                        <h3 className="text-3xl mt-5 font-bold text-white">$0.00</h3>
+                        <h3 className="text-3xl mt-5 font-bold text-white">{currencySymbol}0.00</h3>
                         <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
                         <div className="h-1 bg-gray-700 mt-4 rounded" />
                         <div className="flex justify-end mt-4 mb-5">
@@ -138,7 +171,7 @@ export default function AccountPage() {
                 </div>
                 {/* Transactions Section */}
                 <div className="mt-8">
-                    <Transactions />
+                    <Transactions transactions={transactions} />
                 </div>
             </main>
         </div>

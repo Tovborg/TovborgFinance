@@ -1,6 +1,6 @@
 // src/pages/Dashboard.jsx
 import { useAuth } from "../context/AuthContext"
-import { Navigate } from "react-router-dom"
+import { data, Navigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import { FaWallet, FaArrowDown, FaChartLine, FaPiggyBank } from "react-icons/fa"
 import RevenueChart from "../components/RevenueChart"
@@ -20,6 +20,8 @@ export default function Dashboard() {
     }
 
     const [transactions, setTransactions] = useState([])
+    const [chartData, setChartData] = useState([])
+    const [interval, setInterval] = useState("weekly")
 
     // Fetch transactions for the user
     useEffect(() => {
@@ -42,7 +44,27 @@ export default function Dashboard() {
     
         if (jwt) fetchLatestTransactions();
     }, [jwt]);
-
+    // Fetch data for the chart
+    useEffect(() => {
+        const fetchChartData = async () => {
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/revenue_chart_data?interval=${interval}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${jwt}`,
+                    },
+                });
+                if (!res.ok) throw new Error("Failed to fetch chart data");
+                const data = await res.json();
+                setChartData(data);
+                console.log("Chart data:", data);
+            } catch (err) {
+                console.error("Error fetching chart data:", err);
+            }
+        };
+        if (jwt) fetchChartData();
+    }, [interval, jwt]);
 
     
     return (
@@ -93,7 +115,7 @@ export default function Dashboard() {
                 {/* Revenue and Expenses Chart */}
                 <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
                     <div className="col-span-1 sm:col-span-2 lg:col-span-4">
-                        <RevenueChart />
+                        <RevenueChart data={chartData} interval={interval} setInterval={setInterval} />
                     </div>
                 </section>
                 {/* Savings goals section */}

@@ -6,8 +6,9 @@ from app.dependencies import get_current_user
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from sqlalchemy import func
-from datetime import datetime, timedelta
+from sqlalchemy import func, case
+from typing import Literal
+from datetime import datetime, timedelta, timezone
 load_dotenv()
 
 router = APIRouter()
@@ -140,4 +141,126 @@ async def get_account_summary(
         "money_out": float(money_out),
         "money_in": abs(float(money_in)), # absolute value for money in
         "currency": account.currency,
+    }
+
+
+@router.get("/revenue_chart_data", summary="Get revenue chart data")
+async def get_revenue_chart_data(
+    interval: Literal["daily", "weekly", "monthly", "yearly"] = Query("weekly"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get revenue chart data for the current user.
+    This is for the dashboard page.
+    """
+    # Hent alle brugerens account_ids
+    result = await db.execute(
+        select(Account.id)
+        .join(BankRequisition)
+        .where(BankRequisition.user_id == current_user.id)
+    )
+    account_ids = [row[0] for row in result.all()]
+    if not account_ids:
+        raise HTTPException(404, detail="No accounts found for the current user.")
+
+    # Brug naive datetimes (uden timezone)
+    now = datetime.utcnow()  # i stedet for datetime.now(timezone.utc)
+    
+    if interval == "daily":
+        start_date = now - timedelta(days=7)
+        trunc_func = func.date_trunc('day', Transaction.booking_date)
+    elif interval == "weekly":
+        start_date = now - timedelta(weeks=6)
+        trunc_func = func.date_trunc("week", Transaction.booking_date)
+    elif interval == "monthly":
+        start_date = now - timedelta(days=30 * 6)
+        trunc_func = func.date_trunc("month", Transaction.booking_date)
+    elif interval == "yearly":
+        start_date = now - timedelta(days=365 * 5)
+        trunc_func = func.date_trunc("year", Transaction.booking_date)
+    else:
+        raise HTTPException(400, detail="Invalid interval")
+
+    # Byg query
+    stmt = (
+        select(
+            trunc_func.label("period"),
+            func.sum(
+                case((Transaction.amount > 0, Transaction.amount), else_=0)
+            ).label("income"),
+            func.sum(
+                case((Transaction.amount < 0, Transaction.amount), else_=0)
+            ).label("expenses"),
+        )
+        .where(
+            Transaction.account_id.in_(account_ids),
+            Transaction.booking_date >= start_date
+        )
+        .group_by("period")
+        .order_by("period")
+    )
+
+    result = await db.execute(stmt)
+    rows = result.all()
+
+    return [
+        {
+            "date": period.strftime("%d %b" if interval != "yearly" else "%Y"),
+            "income": float(income),
+            "expenses": abs(float(expenses)),
+        }
+        for period, income, expenses in rows
+    ]
+
+@router.get("/top_transactions", summary="Get top 3 income and top 3 expenses for the current")
+async def top_transactions(
+    account_id: str = Query(..., description="The ID of the account to retrieve transactions for"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Confirm ownership of the account
+    result = await db.execute(
+        select(Account)
+        .join(BankRequisition)
+        .where(Account.id == account_id, BankRequisition.user_id == current_user.id)
+    )
+    account = result.scalar_one_or_none()
+    if not account:
+        raise HTTPException(404, detail="Account not found or does not belong to the current user.")
+    
+    # Calculate first day of the current month
+    today = datetime.utcnow()
+    first_day_of_month = today.replace(day=1)
+
+    # Get top 3 income transactions
+    income_stmt = (
+        select(Transaction)
+        .where(
+            Transaction.account_id == account_id,
+            Transaction.booking_date >= first_day_of_month,
+            Transaction.amount > 0
+        )
+        .order_by(Transaction.amount.desc()
+        ).limit(3)
+    )
+    top_income = (await db.execute(income_stmt)).scalars().all()
+    
+    # Get top 3 expense transactions
+    expense_stmt = (
+        select(Transaction)
+        .where(
+            Transaction.account_id == account_id,
+            Transaction.booking_date >= first_day_of_month,
+            Transaction.amount < 0
+        )
+        .order_by(Transaction.amount.asc()  # Most negative = highest expense
+        ).limit(3)
+    )
+    top_expenses = (await db.execute(expense_stmt)).scalars().all()
+
+    return {
+        "income": [tx.as_dict() for tx in top_income],
+        "expenses": [tx.as_dict() for tx in top_expenses],
+        "account_id": account_id,
     }

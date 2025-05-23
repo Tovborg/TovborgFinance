@@ -37,6 +37,8 @@ export default function AccountPage() {
     const [transactions, setTransactions] = useState([]);
     const [moneyIn, setMoneyIn] = useState(0);
     const [moneyOut, setMoneyOut] = useState(0);
+    const [incomingTransactions, setIncomingTransactions] = useState([]);
+    const [outgoingTransactions, setOutgoingTransactions] = useState([]);
     console.log("Account ID:", account_id);
     // Check if the account_id is valid
     if (!account_id) {
@@ -98,6 +100,7 @@ export default function AccountPage() {
                         "Authorization": `Bearer ${jwt}`
                     }
                 });
+                if (!res.ok) throw new Error("Failed to fetch summary");
                 const data = await res.json();
                 setMoneyOut(data.money_out);
                 setMoneyIn(data.money_in);
@@ -105,8 +108,32 @@ export default function AccountPage() {
                 console.error("Error fetching summary", error);
             }
         };
-    
         if (jwt && account_id) fetchSummary();
+    }, [jwt, account_id]);
+    // Fetch incoming and outgoing transactions
+    // Fetch incoming and outgoing transactions
+    useEffect(() => {
+        const fetchTopTransactions = async () => {
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/top_transactions?account_id=${account_id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`
+                    }
+                });
+                if (!res.ok) throw new Error("Failed to fetch transactions");
+                const data = await res.json();
+                setIncomingTransactions(data.income);
+                setOutgoingTransactions(data.expenses);
+                console.log("Incoming Transactions:", data.income);
+                console.log("Outgoing Transactions:", data.expenses);
+            } catch (error) {
+                console.error("Error fetching transactions", error);
+            }
+        };
+        if (jwt && account_id) {
+            fetchTopTransactions();
+        }
     }, [jwt, account_id]);
     // map currency to symbol
     const currencySymbol = currencyMap[accountInfo?.account?.currency] || accountInfo?.account?.currency;
@@ -168,11 +195,38 @@ export default function AccountPage() {
                 {/* Money In / Out Summary */}
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2 mt-6">
                     {/* Money out */}
+
                     <div className="bg-gray-800 rounded-xl p-6 shadow-md">
                         <p className="text-md font-medium text-gray-400 mb-2 mt-10 uppercase">Money out last 30 days</p>
                         <h3 className="text-3xl mt-5 font-bold text-red-400">{currencySymbol} {moneyOut}</h3>
-                        <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
-                        <div className="h-1 bg-gray-700 mt-4 rounded" />
+
+                        {outgoingTransactions.length > 0 ? (
+                            <div className="mt-6 divide-y divide-gray-700">
+                                {outgoingTransactions.map((tx, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 text-sm hover:bg-gray-800 transition sm:hover:bg-gray-700"
+                                    >
+                                        <div className="flex-1 w-full truncate">
+                                            <p className="text-white truncate font-medium">
+                                                {tx.remittance_information || tx.creditor_name || "Unnamed transaction"}
+                                            </p>
+                                            <p className="text-gray-400 text-xs mt-0.5">
+                                                {new Date(tx.booking_date).toLocaleDateString("da-DK")}
+                                            </p>
+                                        </div>
+                                        <div className="mt-2 sm:mt-0 sm:ml-4 text-red-400 font-semibold whitespace-nowrap">
+                                            -{currencySymbol}{Number(tx.amount).toFixed(2)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div>
+                                <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
+                                <div className="h-1 bg-gray-700 mt-4 rounded" />
+                            </div>
+                        )}
                         <div className="flex justify-end mt-4 mb-5">
                             <a href="#" className="text-sm text-indigo-500 hover:underline flex items-center gap-1">
                                 View all <span className="text-lg">→</span>
@@ -183,8 +237,36 @@ export default function AccountPage() {
                     <div className="bg-gray-800 rounded-xl p-6 shadow-md">
                         <p className="text-md font-medium text-gray-400 mb-2 mt-10 uppercase">Money In last 30 days</p>
                         <h3 className="text-3xl mt-5 font-bold text-green-400">{currencySymbol} {moneyIn}</h3>
-                        <p className="text-gray-500 mt-7">No outgoing transactions yet</p>
-                        <div className="h-1 bg-gray-700 mt-4 rounded" />
+                        {incomingTransactions.length > 0 ? (
+                            <div className="mt-6 divide-y divide-gray-700">
+                                {incomingTransactions.map((tx, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 text-sm hover:bg-gray-800 transition sm:hover:bg-gray-700"
+                                    >
+                                        <div className="flex-1 w-full truncate">
+                                            <p className="text-white truncate font-medium">
+                                                {tx.remittance_information || tx.creditor_name || "Unnamed transaction"}
+                                            </p>
+                                            <p className="text-gray-400 text-xs mt-0.5">
+                                                {new Date(tx.booking_date).toLocaleDateString("da-DK")}
+                                            </p>
+                                        </div>
+                                        <div className="mt-2 sm:mt-0 sm:ml-4 text-green-400 font-semibold whitespace-nowrap">
+                                            {currencySymbol}{Number(tx.amount).toFixed(2)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div>
+                                <p className="text-gray-500 mt-7">No outgoing transactions this month yet</p>
+                                <div className="h-1 bg-gray-700 mt-4 rounded" />
+                            </div>
+                        )}
+                        
+                        {/* <p className="text-gray-500 mt-7">No incoming transactions this month yet</p>
+                         */}
                         <div className="flex justify-end mt-4 mb-5">
                             <a href="#" className="text-sm text-indigo-500 hover:underline flex items-center gap-1">
                                 View all <span className="text-lg">→</span>

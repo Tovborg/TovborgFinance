@@ -4,6 +4,7 @@ from sqlalchemy.future import select
 from decimal import Decimal
 from datetime import datetime, timezone
 
+
 async def save_transactions(transactions_data: dict, account_db_id: str, db: AsyncSession):
     all_transactions = transactions_data.get("transactions", {})  # Get the transactions
     # Check early for no transactions

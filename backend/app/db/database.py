@@ -9,7 +9,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable not set")
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)  # Set echo to False to suppress SQLAlchemy logs
 
 AsyncSessionLocal = sessionmaker(
     bind=engine,

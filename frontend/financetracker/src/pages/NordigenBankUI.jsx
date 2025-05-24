@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 export default function SelectBank() {
     const { user, isLoading } = useAuth();
     if (isLoading) {
-        return <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">Loading...</div>
+        return <div className="flex items-center justify-center min-h-screen text-white bg-gray-900">Loading...</div>
     }
     if (!user) {
         return <Navigate to="/" />
@@ -50,7 +50,9 @@ export default function SelectBank() {
                         institution.addEventListener('click', (e) => {
                             e.preventDefault();
                             const institutionId = institution.getAttribute('data-institution');
-                            window.location.href = `/bank-connect/${institutionId}`;
+                            // window.location.href = `/bank-connect/${institutionId}`; 
+                            // Use sandbox connection for testing
+                            window.location.href = `/bank-connect/SANDBOXFINANCE_SFIN0000`;
                         });
                     });
                 }, 200);

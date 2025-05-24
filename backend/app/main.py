@@ -5,6 +5,22 @@ from app.api.auth_router import router as auth_router
 from app.api.openbanking_router import router as openbanking_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.account_info_router import router as account_info_router
+import logging
+
+# Configure global logging config
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Avoid duplicate handlers if reloaded
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+
 
 app = FastAPI()
 

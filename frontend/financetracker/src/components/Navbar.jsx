@@ -5,14 +5,15 @@ import { useEffect, useState } from 'react'
 import LogoIcon from './LogoIcon'
 import { useGoogleLogin, googleLogout } from '@react-oauth/google'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+
 
 const navigation = [
-  { name: 'Overblik', href: '/dashboard', current: true },
-  { name: 'Konti', href: '/accounts-page', current: false },
-  { name: 'Transaktioner', href: '/transactions', current: false },
-  { name: 'Budget', href: '#', current: false },
-  { name: 'Mål', href: '#', current: false },
+  { name: 'Overblik', href: '/dashboard'},
+  { name: 'Konti', href: '/accounts-page'},
+  { name: 'Transaktioner', href: '/transactions'},
+  { name: 'Budget', href: '#'},
+  { name: 'Mål', href: '#'},
 ]
 
 function classNames(...classes) {
@@ -20,8 +21,9 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
-  const navigate = useNavigate()
-  const { user, login, logout } = useAuth() // Grab user and save function
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, login, logout } = useAuth(); // Grab user and save function
   const [accessToken, setAccessToken] = useState(null);
 
   const googleLogin = useGoogleLogin({
@@ -44,20 +46,20 @@ export default function Navbar() {
   };
   return (
     <Disclosure as="nav" className="bg-gray-800">
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-        <div className="relative flex h-16 items-center justify-between">
+      <div className="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="relative flex items-center justify-between h-16">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             {/* Mobile menu button*/}
-            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
+            <DisclosureButton className="relative inline-flex items-center justify-center p-2 text-gray-400 rounded-md group hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
               <Bars3Icon aria-hidden="true" className="block size-6 group-data-open:hidden" />
               <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
             </DisclosureButton>
           </div>
-          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex shrink-0 items-center">
-              <LogoIcon className="h-8 w-auto text-indigo-600" />
+          <div className="flex items-center justify-center flex-1 sm:items-stretch sm:justify-start">
+            <div className="flex items-center shrink-0">
+              <LogoIcon className="w-auto h-8 text-indigo-600" />
             </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
@@ -65,9 +67,9 @@ export default function Navbar() {
                 <a
                   key={item.name}
                   href={item.href}
-                  aria-current={item.current ? 'page' : undefined}
+                  aria-current={location.pathname === item.href ? 'page' : undefined}
                   className={classNames(
-                    item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                    location.pathname === item.href ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                     'rounded-md px-3 py-2 text-sm font-medium',
                   )}
                 >
@@ -82,7 +84,7 @@ export default function Navbar() {
             
             <button
               type="button"
-              className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
+              className="relative p-1 text-gray-400 bg-gray-800 rounded-full hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
             >
               <span className="absolute -inset-1.5" />
               <span className="sr-only">View notifications</span>
@@ -95,19 +97,19 @@ export default function Navbar() {
             
             <Menu as="div" className="relative ml-3">
               <div>
-                <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
+                <MenuButton className="relative flex text-sm bg-gray-800 rounded-full focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
                   <img
                     alt=""
                     src={user.picture}
-                    className="size-8 rounded-full"
+                    className="rounded-full size-8"
                   />
                 </MenuButton>
               </div>
               <MenuItems
                 transition
-                className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-hidden data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
+                className="absolute right-0 z-10 w-48 py-1 mt-2 transition origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
               >
                 <MenuItem>
                   <a
@@ -128,7 +130,7 @@ export default function Navbar() {
                 <MenuItem>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
+                    className="block w-full px-4 py-2 text-sm text-left text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                   >Sign out</button>
                 </MenuItem>
               </MenuItems>
@@ -170,7 +172,7 @@ export default function Navbar() {
       </div>
 
       <DisclosurePanel className="sm:hidden">
-        <div className="space-y-1 px-2 pt-2 pb-3">
+        <div className="px-2 pt-2 pb-3 space-y-1">
           {navigation.map((item) => (
             <DisclosureButton
               key={item.name}

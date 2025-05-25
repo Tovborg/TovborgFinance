@@ -3,13 +3,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from decimal import Decimal
 from datetime import datetime, timezone
+import logging
 
+logger = logging.getLogger(__name__)  # Set up a logger for this module
 
 async def save_transactions(transactions_data: dict, account_db_id: str, db: AsyncSession):
     all_transactions = transactions_data.get("transactions", {})  # Get the transactions
     # Check early for no transactions
     if not all_transactions:
-        print("No transactions found")
+        logger.warning("No transactions found in the provided data.")
         return
     
     created_count = 0  # Counter for created transactions
@@ -17,17 +19,20 @@ async def save_transactions(transactions_data: dict, account_db_id: str, db: Asy
 
     for tx_type in ["booked", "pending"]:
         for tx in all_transactions.get(tx_type, []):  # Loop through booked and pending transactions
-            if tx_type == "pending":
-                print("Pending transaction found")
-            tx_id = tx.get("transactionId")
             
+            tx_id = tx.get("transactionId")
+            logger.debug(f"Processing transaction ID: {tx_id} of type: {tx_type}")
+            if not tx_id:
+                logger.warning("Transaction ID is missing, skipping this transaction.")
+                continue
             # Check if the transaction already exists in the database
             result = await db.execute(
                 select(Transaction).where(Transaction.transaction_id == tx_id)
             )
             if result.scalar_one_or_none():
+                # For now we skip updating existing transactions
+                logger.debug(f"Transaction ID {tx_id} already exists, skipping update.")
                 continue  # Skip if transaction already exists
-            print(tx)
             transactionAmount = tx.get("transactionAmount", {})
             amount = transactionAmount.get("amount", 0)
             currency = transactionAmount.get("currency", "DKK")
@@ -45,7 +50,8 @@ async def save_transactions(transactions_data: dict, account_db_id: str, db: Asy
 
             bankTransactionCode = tx.get("bankTransactionCode", "Unknown")
             proprietaryBankTransactionCode = tx.get("proprietaryBankTransactionCode", "Unknown")
-
+            logger.info("Saving transaction with ID: %s, Amount: %s, Currency: %s, Booking Date: %s, Value Date: %s",
+                        tx_id, amount, currency, booking_date, valueDate)
             # Create a new transaction object
             transaction = Transaction(
                 account_id=account_db_id,
@@ -65,7 +71,6 @@ async def save_transactions(transactions_data: dict, account_db_id: str, db: Asy
             db.add(transaction)
             created_count += 1
     await db.commit()
-    print(f"Created {created_count} transactions and updated {updated_count} transactions.")
     return {"created": created_count, "updated": updated_count}
             
 

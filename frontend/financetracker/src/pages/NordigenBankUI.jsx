@@ -50,9 +50,9 @@ export default function SelectBank() {
                         institution.addEventListener('click', (e) => {
                             e.preventDefault();
                             const institutionId = institution.getAttribute('data-institution');
-                            // window.location.href = `/bank-connect/${institutionId}`; 
+                            window.location.href = `/bank-connect/${institutionId}`; 
                             // Use sandbox connection for testing
-                            window.location.href = `/bank-connect/SANDBOXFINANCE_SFIN0000`;
+                            // window.location.href = `/bank-connect/SANDBOXFINANCE_SFIN0000`;
                         });
                     });
                 }, 200);
